@@ -1,22 +1,54 @@
-0.
-Deps on openssl cryptolib to compile
+[![version](https://img.shields.io/github/downloads/alexeyneu/GenesisBlockZero/total.svg?style=plastic)](https://github.com/alexeyneu//GenesisBlockZero/releases/latest)
 
+
+run req:  
+linux - `libcrypto` (openssl package)  
+windows - `libcrypto-1_1-x64.dll`  ( ... )
+
+build req:  
+ - windows  
+ms visual studio(C++)  
+https://github.com/pocoproject/openssl/tree/develop/build/win64/bin/release  
+https://github.com/openssl/openssl/tree/master/include  
+, copy `.lib` to say  `C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\Lib\x64`  
+also copy its .h files to `C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\Include\openssl`
+and dlls to `C:\Windows\System32`
+
+didnt test it with msys but nothing stops it from build there i guess   
+
+ - linux  
+`sudo apt install libssl-*`  
+
+## How to:  
+
+	Set initial value of uint32_t startNonce = 2083236893 and uint32_t unixtime = 1231006505 in BlockZero.cpp  
+    to generate original Bitcoin Block 0 hash
+
+	 tx and block versions are hardcoded with `drift` comment.  
+	 so ,if left on its own, it'll produce version 1 block .  
 1.
-gcc genesisblock.c into genesisgen
+windows  
+vs win64 command prompt (standard command prompt works too if env tuned right ) 
+```
+nmake
+```
+libux build (for non-pc - req unaligned memory access) : 
+```
+c++ BlockZero.cpp -o BlockZero -lcrypto
+```
+2.
+BlockZero [PubKey] [TimeStamp] [nBits]
 
-2. ./genesisgen <PubKey> <TimeStamp> <nBits>
-
+2a.  
+windows
+```
+BlockZero 04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5f "The Times 03/Jan/2009 Chancellor on brink of second bailout for banks" 486604799
+```
+linux
+```
+./BlockZero 04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5f "The Times 03/Jan/2009 Chancellor on brink of second bailout for banks" 486604799
+```
+idk why but linux has 10% more hashrate (parrot 3.21)  
 3.
-./genesisgen 04678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5f "The Times 03/Jan/2009 Chancellor on brink of second bailout for banks" 486604799
-
-Coinbase: 04ffff001d0104455468652054696d65732030332f4a616e2f32303039204368616e63656c6c6f72206f6e206272696e6b206f66207365636f6e64206261696c6f757420666f722062616e6b73
-
-PubkeyScript: 4104678afdb0fe5548271967f1a67130b7105cd6a828e03909a67962e0ea1f61deb649f6bc3f4cef38c4f35504e51ec112de5c384df7ba0b8d578a4c702b6bf11d5fac
-
-Merkle Hash: 3ba3edfd7a7b12b27ac72c3e67768f617fc81bc3888a51323a9fb8aa4b1e5e4a
-Byteswapped: 4a5e1e4baab89f3a32518a88c31bc87f618f76673e2cc77ab2127b7afdeda33b
-Generating block...
-
-Hash: 000000000be5c9479ccf0a6a74134940650ca3690488d6a3604ea029b429f778
-Nonce: 1279991239
-Unix time: 1367026916
+![Screen1](/screens/Untitled%201.jpg)  
+that's with lines changed as said
