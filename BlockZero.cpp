@@ -24,12 +24,10 @@ struct Transaction
 {
 	#pragma pack(1)
 	uint8_t merkleHash[32];
-	uint8_t *serializedData;
 /* +0 */uint32_t version;   
 	uint8_t numInputs; 
 	uint8_t prevOutput[32];
 	uint32_t prevoutIndex; // +41
-	uint8_t *scriptSig; 
 /* +0 */uint32_t sequence;
 	uint8_t numOutputs; 
 	uint64_t outValue; 
@@ -53,50 +51,49 @@ struct blockhash {
 	uint32_t checkbytes;
 };
 
-const	std::string bin2hex(const unsigned char *p, size_t len)
+const	std::string bin2hex(const unsigned char *p, size_t length)
 {
 	std::stringstream f;
 	f<<std::hex << std::setfill('0');
-	for (int i = 0; i < len; i++)
+	for (int i = 0; i < length; i++)
 		f << std::setw(2) << (int)p[i];
 	return f.str();
 }
-size_t hex2bin(unsigned char *p , const char *hexstr,const size_t len)
+size_t hex2bin(unsigned char *p , const char *hexstr,const size_t length)
 {
-	size_t wlen = 0;
-	while ((wlen<len) && *hexstr && *(hexstr+1))    //last condition cause np if check fails on middle one.thats coz of short-circuit evaluation
+	size_t wcount = 0;
+	while ((wcount<length) && *hexstr && *(hexstr+1))    //last condition cause np if check fails on middle one.thats coz of short-circuit evaluation
         {
 		sscanf(hexstr, "%2hhx",p++);   // 0 or 1 (maybe smth else too) . Slow stuff , np  		
 		hexstr = hexstr+2;
-		wlen++;
+		wcount++;
 	}
-	return  (wlen == len - 1)*len;     // zero if error .had enough 
+	return  (wcount == length - 1)*length;     // zero if error .had enough 
 }
 
 int main(int argc, char *argv[])
 {
 	unsigned char hash1[32];
 	char timestamp[255], pubkey[131];
-	uint32_t timestamp_len = 0, scriptSig_len = 0, pubkey_len = 0;
-	uint32_t nBits = 0;
+	uint32_t timestamp_length = 0,  pubkey_length = 0,uint32_t nBits = 0;
 	if((argc-1) < 3)
 	{
 		fprintf(stderr, "Usage: blockzero [options] <pubkey> \"<timestamp>\" <nBits>\n");
 		return 0;		
 	}
-	pubkey_len = strlen(argv[1]) / 2; // One byte is represented as two hex characters, thus we divide by two to get real length.
-	timestamp_len = strlen(argv[2]);
-	if((pubkey_len != 65) || (strlen(argv[1])  % 2))
+	pubkey_length = strlen(argv[1]) / 2; // One byte is represented as two hex characters, thus we divide by two to get real length.
+	timestamp_length = strlen(argv[2]);
+	if((pubkey_length != 65) || (strlen(argv[1])  % 2))
 	{
 		fprintf(stderr, "Invalid public key length! %s\n", argv[1]);
 		return 0;
 	}
-	if(timestamp_len > 254 || timestamp_len < 1)
+	if(timestamp_length > 254 || timestamp_length < 1)
 	{
 		fprintf(stderr, "Size of timestamp is 0 or exceeds maximum length of 254 characters!\n");
 		return 0;
 	}	
-	Transaction transaction={ {},0 ,/* drift */1 ,1 , {},0xFFFFFFFF ,0 ,0xFFFFFFFF ,1 ,50*COIN ,pubscriptlength,{} ,0 };
+	Transaction transaction={ {},/* version */1 ,1 , {},0xFFFFFFFF ,/* sequ */0xFFFFFFFF ,1 ,50*COIN ,pubscriptlength,{} ,0 };
 	strncpy(pubkey, argv[1], sizeof(pubkey));		
 	strncpy(timestamp, argv[2], sizeof(timestamp));
 	sscanf(argv[3], "%d", (long unsigned int *)&nBits); 
@@ -105,54 +102,52 @@ int main(int argc, char *argv[])
 	hex2bin(transaction.pubkeyScript + 1, pubkey, 65); // No error checking, yeah.
 	transaction.pubkeyScript[66] = OP_CHECKSIG;
 	/*public key is done*/
-	transaction.scriptSig =(uint8_t *) malloc(8); //max size of first part 1 + 4max + 1 + 1 + 1
-	uint32_t scriptSig_pos = 0;
+	
+	uint8_t *serializedData =(uint8_t *) malloc(41 + 1 + 7); //7 = max size of scriptSig first part , 4max + 1 + 1 + 1
+	uint32_t serializedData_pos = 0;
+	memcpy(serializedData, &transaction.version, 41);  
+	serializedData_pos = serializedData_pos + 41;
+	/* fo' sho' */ 
+//	std::cout << offsetof(Transaction,prevoutIndex) + 4 /* size of prevoutIndex */ - offsetof(Transaction,version);/* OK output : " 41 " */	
+	serializedData_pos++;  // +41 byte reserved 
 	short pl;
-	/* nbits related stuff , first is real size of value in bytes , next is value with 
-	   null bytes on the left removed  */
-	// statement (smth > 0) returns 0 or 1.  !! turns value in brackets to !=0 condition check. say !!5 is 1
-	transaction.scriptSig[scriptSig_pos++] = pl = 0x01+!!(nBits >> 8)+!!(nBits >> 16)+!!(nBits >> 24);  
-	memcpy(transaction.scriptSig + scriptSig_pos, &nBits, pl);
-	scriptSig_pos = scriptSig_pos + pl;
-	// nobody knows what that means
-	transaction.scriptSig[scriptSig_pos++] = 0x01;
-	transaction.scriptSig[scriptSig_pos++] = 0x04;
-	transaction.scriptSig[scriptSig_pos++] = timestamp_len;  
-	scriptSig_len = scriptSig_pos + timestamp_len;
-	transaction.scriptSig = (uint8_t*)realloc(transaction.scriptSig, scriptSig_len);
-	memcpy(transaction.scriptSig+scriptSig_pos, (const unsigned char *)timestamp, timestamp_len);
-	/*scriptsig is done*/
-	uint32_t serializedLen = 
+/*	nbits related stuff , first is real size of value in bytes , next is value with null bytes on the left removed 
+	statement (smth > 0) returns 0 or 1.  !! turns value in brackets to !=0 condition check. say !!5 is 1 */
+	serializedData[serializedData_pos++] = pl = 0x01+!!(nBits >> 8)+!!(nBits >> 16)+!!(nBits >> 24);  // size of nbits , not neccesary same as sizeof(nbits)   
+	memcpy(serializedData + serializedData_pos, &nBits, pl);
+	serializedData_pos = serializedData_pos + pl;
+	serializedData[serializedData_pos++] = 0x01;	    // nobody knows what this means
+	serializedData[serializedData_pos++] = 0x04;	    // nobody knows what this means
+	serializedData[serializedData_pos++] = timestamp_length;  
+	uint32_t  scriptSig_length = serializedData_pos  - 42 + timestamp_length; // serializedData_pos inc'ed already to go as size
+	serializedData[41] = scriptSig_length;
+	
+	uint32_t serializedLength = 
 	4    // tx version  
 	+1   // number of inputs
 	+32  // hash of previous output
 	+4   // previous output's index
 	+1   // 1 byte for the size of scriptSig (?)
-	+scriptSig_len
+	+scriptSig_length
 	+4   // size of sequence
 	+1   // number of outputs
 	+8   // 8 bytes for coin value
 	+1   // 1 byte to represent size of the pubkey Script
 	+pubscriptlength
-	+4;   // 4 bytes for lock time
-
-	uint32_t serializedData_pos = 0;
-	transaction.serializedData = (uint8_t *)malloc(serializedLen);
-	memcpy(transaction.serializedData, &transaction.version, 41);  
-	/* fo' sho' */
-//	std::cout << offsetof(Transaction,prevoutIndex) + sizeof(uint32_t) - offsetof(Transaction,version);	
-	serializedData_pos += 41; 
-	transaction.serializedData[serializedData_pos++] = scriptSig_len;
-	memcpy(transaction.serializedData+serializedData_pos, transaction.scriptSig, scriptSig_len);
-	serializedData_pos += scriptSig_len;
-	memcpy(transaction.serializedData+serializedData_pos, &transaction.sequence, 85);
+	+4;   // 4 bytes for lock time	
+	
+	serializedData = (uint8_t*)realloc(serializedData ,serializedLength );
+	memcpy(serializedData + serializedData_pos, (const unsigned char *)timestamp, timestamp_length);
+	serializedData_pos = serializedData_pos + timestamp_length;
+	/*scriptsig is done*/
+	memcpy(serializedData+serializedData_pos, &transaction.sequence, 85);
 	// hash it with SHA256 and then hash that result to get merkle hash
-	SHA256(transaction.serializedData, serializedLen, hash1);
+	SHA256(transaction.serializedData, serializedLength , hash1);
 	SHA256(hash1, 32, transaction.merkleHash);
 	std::string merkleHash = bin2hex(transaction.merkleHash, 32);
 	std::reverse(transaction.merkleHash,transaction.merkleHash +32); 
 	std::string merkleHashSwapped = bin2hex(transaction.merkleHash, 32);
-	std::string txScriptSig = bin2hex(transaction.scriptSig, scriptSig_len);
+	std::string txScriptSig = bin2hex(serializedData + 42, scriptSig_length);
 	std::string pubScriptSig = bin2hex(transaction.pubkeyScript, pubscriptlength);
 	std::cout<<"\nCoinbase: "<< txScriptSig <<"\nPubkeyScript: "<<pubScriptSig <<"\nMerkle Hash: "<<merkleHash<<"\nByteswapped: "<< merkleHashSwapped << std::endl;
 		printf("Generating block...\n\n");
@@ -188,7 +183,6 @@ int main(int argc, char *argv[])
 			block_header.startNonce++;		//see what happens on bounds
 			counter++;
 		}
-	free(transaction.serializedData);
-	free(transaction.scriptSig);
+	free(serializedData);
 	return 0;
 }
