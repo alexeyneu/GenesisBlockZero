@@ -75,7 +75,7 @@ int main(int argc, char *argv[])
 {
 	unsigned char hash1[32];
 	char timestamp[255], pubkey[131];
-	uint32_t timestamp_length = 0,  pubkey_length = 0,uint32_t nBits = 0;
+	uint32_t timestamp_length = 0,  pubkey_length = 0, nBits = 0;
 	if((argc-1) < 3)
 	{
 		fprintf(stderr, "Usage: blockzero [options] <pubkey> \"<timestamp>\" <nBits>\n");
@@ -142,7 +142,7 @@ int main(int argc, char *argv[])
 	/*scriptsig is done*/
 	memcpy(serializedData+serializedData_pos, &transaction.sequence, 85);
 	// hash it with SHA256 and then hash that result to get merkle hash
-	SHA256(transaction.serializedData, serializedLength , hash1);
+	SHA256(serializedData, serializedLength , hash1);
 	SHA256(hash1, 32, transaction.merkleHash);
 	std::string merkleHash = bin2hex(transaction.merkleHash, 32);
 	std::reverse(transaction.merkleHash,transaction.merkleHash +32); 
