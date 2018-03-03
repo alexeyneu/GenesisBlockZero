@@ -32,9 +32,10 @@ struct Transaction
 	uint8_t *scriptSig; 
 /* +0 */uint32_t sequence;
 	uint8_t numOutputs; 
-	uint64_t outValue; // +13
-/* +0 */uint8_t  pubkeyScript[pubscriptlength];
-	uint32_t locktime;   // +71
+	uint64_t outValue; 
+	uint8_t pubscriptlength;
+	uint8_t  pubkeyScript[::pubscriptlength];
+	uint32_t locktime;   // +85
 } ;
 struct blockheader 
 {
@@ -95,7 +96,7 @@ int main(int argc, char *argv[])
 		fprintf(stderr, "Size of timestamp is 0 or exceeds maximum length of 254 characters!\n");
 		return 0;
 	}	
-	Transaction transaction={ {},0 ,/* drift */1 ,1 , {},0xFFFFFFFF ,0 ,0xFFFFFFFF ,1 ,50*COIN ,{} ,0 };
+	Transaction transaction={ {},0 ,/* drift */1 ,1 , {},0xFFFFFFFF ,0 ,0xFFFFFFFF ,1 ,50*COIN ,pubscriptlength,{} ,0 };
 	strncpy(pubkey, argv[1], sizeof(pubkey));		
 	strncpy(timestamp, argv[2], sizeof(timestamp));
 	sscanf(argv[3], "%d", (long unsigned int *)&nBits); 
@@ -144,10 +145,7 @@ int main(int argc, char *argv[])
 	transaction.serializedData[serializedData_pos++] = scriptSig_len;
 	memcpy(transaction.serializedData+serializedData_pos, transaction.scriptSig, scriptSig_len);
 	serializedData_pos += scriptSig_len;
-	memcpy(transaction.serializedData+serializedData_pos, &transaction.sequence, 13);
-	serializedData_pos += 13;
-	transaction.serializedData[serializedData_pos++] = pubscriptlength;
-	memcpy(transaction.serializedData+serializedData_pos, &transaction.pubkeyScript, 71); 
+	memcpy(transaction.serializedData+serializedData_pos, &transaction.sequence, 85);
 	// hash it with SHA256 and then hash that result to get merkle hash
 	SHA256(transaction.serializedData, serializedLen, hash1);
 	SHA256(hash1, 32, transaction.merkleHash);
