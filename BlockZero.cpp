@@ -97,14 +97,16 @@ int main(int argc, char *argv[])
 	strncpy(pubkey, argv[1], sizeof(pubkey));		
 	strncpy(timestamp, argv[2], sizeof(timestamp));
 	sscanf(argv[3], "%d", (long unsigned int *)&nBits); 
+
 	// pubkey to bytes , then prepend pubkey size, then append the OP_CHECKSIG byte	
 	transaction.pubkeyScript[0] = 0x41; // size. A public key is 32 bytes X coordinate, 32 bytes Y coordinate and one byte 0x04, so 65 bytes i.e 0x41 in Hex.
 	hex2bin(transaction.pubkeyScript + 1, pubkey, 65); // No error checking, yeah.
 	transaction.pubkeyScript[66] = OP_CHECKSIG;
 	/*public key is done*/
 	
-	uint8_t *serializedData =(uint8_t *) malloc(41 + 1 + 7); //7 = max size of scriptSig first part , 4max + 1 + 1 + 1
+	uint8_t serializedData[857]; 
 	uint32_t serializedData_pos = 0;
+
 	memcpy(serializedData, &transaction.version, 41);  
 	serializedData_pos = serializedData_pos + 41;
 	/* fo' sho' */ 
@@ -135,8 +137,6 @@ int main(int argc, char *argv[])
 	+1   // 1 byte to represent size of the pubkey Script
 	+pubscriptlength
 	+4;   // 4 bytes for lock time	
-	
-	serializedData = (uint8_t*)realloc(serializedData ,serializedLength );
 	memcpy(serializedData + serializedData_pos, (const unsigned char *)timestamp, timestamp_length);
 	serializedData_pos = serializedData_pos + timestamp_length;
 	/*scriptsig is done*/
@@ -144,6 +144,7 @@ int main(int argc, char *argv[])
 	// hash it with SHA256 and then hash that result to get merkle hash
 	SHA256(serializedData, serializedLength , hash1);
 	SHA256(hash1, 32, transaction.merkleHash);
+
 	std::string merkleHash = bin2hex(transaction.merkleHash, 32);
 	std::reverse(transaction.merkleHash,transaction.merkleHash +32); 
 	std::string merkleHashSwapped = bin2hex(transaction.merkleHash, 32);
@@ -183,6 +184,5 @@ int main(int argc, char *argv[])
 			block_header.startNonce++;		//see what happens on bounds
 			counter++;
 		}
-	free(serializedData);
 	return 0;
 }
