@@ -32,7 +32,7 @@ vs win64 command prompt (standard command prompt works too if env tuned right )
 ```
 nmake
 ```
-libux build (for non-pc - req unaligned memory access) : 
+libux build (for non-pc - support of `#pragma pack(1)` ) : 
 ```
 c++ BlockZero.cpp -o BlockZero -lcrypto
 ```
