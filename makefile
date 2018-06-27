@@ -5,7 +5,7 @@ LINKER=cl
 GUILIBS=/NXCOMPAT /MACHINE:X64 /ERRORREPORT:NONE 
 
 k.exe : BlockZero.obj
-	$(LINKER) $(GUILIBS) BlockZero.obj   
+	$(LINKER) $(GUILIBS) libcrypto.lib BlockZero.obj   
 
 
 BlockZero.obj :BlockZero.cpp 

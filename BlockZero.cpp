@@ -8,7 +8,6 @@
 #include <iomanip>
 #include <sstream>
 #ifdef _MSC_VER
-#pragma comment(lib,"libcrypto.lib")
 #pragma comment(lib,"libssl.lib")
 #endif
 
@@ -65,22 +64,11 @@ int main(int argc, char *argv[])
 	unsigned char hash1[32],serializedData[857];
 	char timestamp[255], pubkey[131];
 	uint32_t timestamp_length = 0,  nBits = 0;
-	if((argc-1) < 3)
-	{
-		fprintf(stderr, "Usage: blockzero [options] <pubkey> \"<timestamp>\" <nBits>\n");
-		return 0;		
-	}
+	if((argc-1) < 3) { std::cerr << "Usage: blockzero [options] <pubkey> \"<timestamp>\" <nBits>\n"; return 0; }
 	timestamp_length = strlen(argv[2]);
-	if(strlen(argv[1])!=130)
-	{
-		fprintf(stderr, "Invalid public key length! %s\n", argv[1]);
-		return 0;
-	}
-	if(timestamp_length > 254 || timestamp_length < 1)
-	{
-		fprintf(stderr, "Size of timestamp is 0 or exceeds maximum length of 254 characters!\n");
-		return 0;
-	}	
+	if(strlen(argv[1])!=130) { std::cerr << "Invalid public key length! " << argv[1]; return 0; }
+	if(timestamp_length > 254 || timestamp_length < 1) 
+	{ std::cerr <<  "Size of timestamp is 0 or exceeds maximum length of 254 characters!\n"; return 0; }	
 	Transaction transaction={ {},/* version */1 ,1 , {},0xFFFFFFFF ,/* sequ */0xFFFFFFFF ,1 ,50*COIN ,pubscriptlength,{} ,0 };
 	strncpy(pubkey, argv[1], sizeof(pubkey));		
 	strncpy(timestamp, argv[2], sizeof(timestamp));
