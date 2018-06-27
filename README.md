@@ -1,4 +1,3 @@
-[![version](https://img.shields.io/github/downloads/alexeyneu/GenesisBlockZero/total.svg?style=plastic)](https://github.com/alexeyneu//GenesisBlockZero/releases/latest)
 
 
 run req:  
@@ -22,11 +21,7 @@ didnt test it with msys but nothing stops it from build there i guess
 ## How to:  
 
 	Set initial value of uint32_t startNonce = 2083236893 and uint32_t unixtime = 1231006505 in BlockZero.cpp  
-    to generate original Bitcoin Block 0 hash
-
-	 tx and block versions are hardcoded with `drift` comment.  
-	 so ,if left on its own, it'll produce version 1 block .  
-1.
+    to generate original Bitcoin Block 0 hash  
 windows  
 vs win64 command prompt (standard command prompt works too if env tuned right ) 
 ```
