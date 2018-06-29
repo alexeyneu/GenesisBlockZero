@@ -20,7 +20,7 @@ didnt test it with msys but nothing stops it from build there i guess
 
 ## How to:  
 
-	Set initial value of uint32_t startNonce = 2083236893 and uint32_t unixtime = 1231006505 in BlockZero.cpp  
+	Set initial value of uint32_t startNonce =  and uint32_t unixtime = 1231006505 in BlockZero.cpp  
     to generate original Bitcoin Block 0 hash  
 windows  
 vs win64 command prompt (standard command prompt works too if env tuned right ) 
@@ -34,6 +34,7 @@ c++ BlockZero.cpp -o BlockZero -lcrypto
 2.
 BlockZero [PubKey] [TimeStamp] [nBits]
 
+![Screen1](/Untitled%201.jpg)
 2a.  
 windows
 ```
