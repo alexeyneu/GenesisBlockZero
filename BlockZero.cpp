@@ -69,12 +69,11 @@ int main(int argc, char *argv[])
 	if(strlen(argv[1])!=130) { std::cerr << "Invalid public key length! " << argv[1]; return 0; }
 	if(timestamp_length > 254 || timestamp_length < 1) 
 	{ std::cerr <<  "Size of timestamp is 0 or exceeds maximum length of 254 characters!\n"; return 0; }	
-	Transaction transaction={ {},/* version */1 ,1 , {},0xFFFFFFFF ,/* sequ */0xFFFFFFFF ,1 ,50*COIN ,pubscriptlength,{} ,0 };
+	Transaction transaction={ {},/* version */1 ,1 , {},0xFFFFFFFF ,/* sequ */0xFFFFFFFF ,1 ,50*COIN ,pubscriptlength, {0x41}/* (?)opcode or size */ ,0 };
 	strncpy(pubkey, argv[1], sizeof(pubkey));		
 	strncpy(timestamp, argv[2], sizeof(timestamp));
 	sscanf(argv[3], "%d", (long unsigned int *)&nBits); 
-	// pubkey to bytes , then prepend pubkey size, then append the OP_CHECKSIG byte	
-	transaction.pubkeyScript[0] = 0x41; // size. A public key is 32 bytes X coordinate, 32 bytes Y coordinate and one byte 0x04, so 65 bytes i.e 0x41 in Hex.
+	// pubkey to bytes ,  then append the OP_CHECKSIG byte	
 	hex2bin(transaction.pubkeyScript + 1, pubkey, 65); // No error checking, yeah.
 	transaction.pubkeyScript[66] = OP_CHECKSIG;
 	short sizeone = offsetof(Transaction,sequence)/*end of Transaction.prevoutIndex + 1 , not bad . adress same as size lookin for*/ - offsetof(Transaction,version);/* OK output :  41  */
@@ -88,7 +87,7 @@ int main(int argc, char *argv[])
 	serializedData[serializedData_pos++] = timestamp_length;  
 	uint32_t  scriptSig_length = serializedData_pos  - sizeone - 1 + timestamp_length; // serializedData_pos inc'ed already to go as size
 	serializedData[sizeone] = scriptSig_length;
-	short sizetwo = offsetof(Transaction,locktime)/* same stuff , +1 by address */ + 4 - offsetof(Transaction,sequence);/* OK output :  85  */
+	short sizetwo = offsetof(Transaction,locktime)/* same stuff , +1 by address */ + 4/* last member size*/ - offsetof(Transaction,sequence);/* OK output :  85  */
 
 	uint32_t serializedLength = sizeone + 1/* 1 byte for the size of scriptSig (?)*/+ scriptSig_length + sizetwo;
 	memcpy(serializedData + serializedData_pos, (const unsigned char *)timestamp, timestamp_length);
@@ -103,8 +102,7 @@ int main(int argc, char *argv[])
 	std::string merkleHashSwapped = bin2hex(transaction.merkleHash, 32);
 	std::string txScriptSig = bin2hex(serializedData + sizeone + 1, scriptSig_length);
 	std::string pubScriptSig = bin2hex(transaction.pubkeyScript, pubscriptlength);
-	std::cout << "\nCoinbase: "<< txScriptSig <<"\nPubkeyScript: "<<pubScriptSig <<"\nMerkle Hash: "<<merkleHash<<"\nByteswapped: "<< merkleHashSwapped << std::endl;
-		printf("Generating block...\n\n");
+	std::cout << "\nCoinbase: "<< txScriptSig <<"\nPubkeyScript: "<< pubScriptSig << "\nMerkle Hash: "<< merkleHash <<"\nByteswapped: "<< merkleHashSwapped << std::endl << "Generating block...\n\n";
 		unsigned char  block_hash1[32] , block_hashfp[32];
 		blockheader block_header={1 , {} , {} , unixtime == 0 ? time(NULL) : unixtime, nBits , startNonce };
 		std::reverse(transaction.merkleHash,transaction.merkleHash +32); 
