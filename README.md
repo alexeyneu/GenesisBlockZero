@@ -6,7 +6,8 @@ windows - `libcrypto-1_1-x64.dll`  ( ... )
 
 build req:  
  - windows  
-ms visual studio(C++) 2012 
+ms visual studio(C++) 2012
+
 https://github.com/pocoproject/openssl/tree/develop/build/win64/bin/release  
 https://github.com/openssl/openssl/tree/master/include  
 , copy `.lib` to say  `C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\Lib\x64`  
@@ -20,7 +21,7 @@ didnt test it with msys but nothing stops it from build there i guess
 
 ## How to:  
 
-	Set initial value of uint32_t startNonce =  and uint32_t unixtime = 1231006505 in BlockZero.cpp  
+	Set initial value of  startNonce = 2083236893 and  unixtime = 1231006505 in BlockZero.cpp
     to generate original Bitcoin Block 0 hash  
 windows  
 vs win64 command prompt (standard command prompt works too if env tuned right ) 
