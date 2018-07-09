@@ -5,23 +5,23 @@
 #include <string>
 #include <iomanip>
 #include <sstream>
-const uint32_t startNonce = 0; // 2083236893; 
-const uint32_t unixtime = 0; //1231006505;
+const uint32_t startNonce =0; // 2083236893 ; 
+const uint32_t unixtime =0; // 1231006505;
 const uint64_t COIN = 100000000;
 const uint32_t OP_CHECKSIG = 172; // This is expressed as 0xAC
 const uint8_t pubscriptlength = 67; // 2 + 65 ,  if unknown at compile time ... 
 struct Transaction {
 #pragma pack(1)
-/* +0 */uint32_t version;   	/* vs bitcoin-api tx block : merkleHash[32] removed */
-	uint8_t  numInputs; 
+/* +0 */uint32_t version = 1;   	/* vs bitcoin-api tx block : merkleHash[32] removed */
+	uint8_t  numInputs = 1; 
 	uint8_t  prevOutput[32];
-	uint32_t prevoutIndex; // +41
-/* +0 */uint32_t sequence;
-	uint8_t  numOutputs; 
-	uint64_t outValue; 
-	uint8_t  pubscriptlength; //it isn't in the bitcoin-api tx block also
+	uint32_t prevoutIndex = 0xFFFFFFFF; // +41
+/* +0 */uint32_t sequence = 0xFFFFFFFF;
+	uint8_t  numOutputs = 1; 
+	uint64_t outValue = 50*COIN; 
+	uint8_t  pubscriptlength = ::pubscriptlength; //it isn't in the bitcoin-api tx block also
 	uint8_t  pubkeyScript[::pubscriptlength];
-	uint32_t locktime;   // +85
+	uint32_t locktime = 0;   // +85
 } ;
 struct blockheader {
 #pragma pack(1)
@@ -45,7 +45,8 @@ size_t hex2bin(unsigned char *p , const char *hexstr,const size_t length) {
 		hexstr = hexstr+2;
 	}
 	return  --wcount;     // error check here is a waste  
-}
+}	
+Transaction transaction; 
 int main(int argc, char *argv[])
 {
 	unsigned char hash1[32], serializedData[857];
@@ -55,8 +56,9 @@ int main(int argc, char *argv[])
 	if(strlen(argv[2]) > 254 || strlen(argv[2]) < 1) { std::cerr <<  "Size of timestamp is 0 or exceeds maximum length of 254 characters!\n"; return -2; }	
 	if( sscanf(argv[3], "%d", (long unsigned int *)&nBits) || sscanf(argv[3], "%x", (long unsigned int *)&nBits)) ; 
 	else { std::cerr << "where's nBits " << std::endl; return -1; } // short-circuit
-	Transaction transaction = {/*version*/1,/*inputs*/1, {},/*poutindex*/0xFFFFFFFF,/*sequ*/0xFFFFFFFF,/*outputs*/1 ,50*COIN ,pubscriptlength, {0x41}/*pubscript[0]:(?)opcode or size */};
+
 	std::string pubkey(argv[1]) , timestamp(argv[2]);		
+	transaction.pubkeyScript[0] = 0x41;
 	hex2bin(transaction.pubkeyScript + 1, pubkey.c_str(), pubkey.length()/2); 	// pubkey to bytes ,  then append the OP_CHECKSIG byte	
 	transaction.pubkeyScript[pubscriptlength - 1] = OP_CHECKSIG;
 	short sizeone = offsetof(Transaction, sequence);  /*, OK output :  41  */

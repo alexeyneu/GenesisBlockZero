@@ -6,7 +6,7 @@ windows - `libcrypto-1_1-x64.dll`  ( ... )
 
 build req:  
  - windows  
-ms visual studio(C++)  
+ms visual studio(C++) 2012 
 https://github.com/pocoproject/openssl/tree/develop/build/win64/bin/release  
 https://github.com/openssl/openssl/tree/master/include  
 , copy `.lib` to say  `C:\Program Files (x86)\Microsoft SDKs\Windows\v7.0A\Lib\x64`  
