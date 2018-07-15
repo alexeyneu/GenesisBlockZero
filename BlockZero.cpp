@@ -5,8 +5,11 @@
 #include <string>
 #include <iomanip>
 #include <sstream>
-const uint32_t startNonce =0; // 2083236893 ; 
-const uint32_t unixtime =0; // 1231006505;
+#pragma comment(lib,"libcrypto.lib")
+#pragma comment(lib,"libssl.lib")
+
+const uint32_t startNonce =2083236893; //0  ; 
+const uint32_t unixtime =1231006505; //0 ;
 const uint64_t COIN = 100000000;
 const uint32_t OP_CHECKSIG = 172; // This is expressed as 0xAC
 const uint8_t pubscriptlength = 67; // 2 + 65 ,  if unknown at compile time ... 
@@ -83,12 +86,80 @@ int main(int argc, char *argv[])
 	std::string txScriptSig = bin2hex(serializedData + sizeone + 1/*same*/, scriptSig_length);
 	std::string pubScriptSig = bin2hex(transaction.pubkeyScript, pubscriptlength);
 	std::cout <<"\nCoinbase: "<< txScriptSig <<"\nPubkeyScript: "<< pubScriptSig <<"\nMerkle Hash: "<< merkleHash <<"\nByteswapped: "<< merkleHashSw <<"\nGenerating block...\n\n";
-		unsigned char  block_hash1[32] , block_hashfp[32];
+	unsigned char  block_hash1[32];
+#ifdef _MSC_VER
+		_declspec(align(16))	unsigned char  block_hashfp[32];
+#else
+		_attribute_((aligned(16))) unsigned char  block_hashfp[32];
+#endif
 		unsigned int counter=0, start = time(NULL);
+		int drift = 4;
+		__m128i r, m, b;
 	while(1) {
+
 		SHA256((unsigned char*)&block_header, 80, block_hash1);
 		SHA256(block_hash1, 32, block_hashfp);
-		if(*(uint32_t *)(block_hashfp + 28) == 0) {// { .. , 0x00, 0x00, 0x00, 0x00 }
+
+		r = _mm_load_si128((__m128i *)block_hashfp);
+		m = _mm_load_si128((__m128i *)(block_hashfp+16));
+		switch (drift)
+		{
+			case 0:
+			    break;
+			case 1:
+				b = _mm_alignr_epi8(m, r, 23);
+
+			    break;
+			case 2:
+				b = _mm_alignr_epi8(m, r, 22);
+		
+			    break;
+			case 3:
+				b = _mm_alignr_epi8(m, r, 21);
+			    
+				break;
+			case 4:
+				b = _mm_alignr_epi8(m, r, 20);
+		
+			    break;
+			case 5:
+				b = _mm_alignr_epi8(m, r, 19);
+		
+			    break;
+			case 6:
+				b = _mm_alignr_epi8(m, r, 18);
+		
+			    break;
+			case 7:
+				b = _mm_alignr_epi8(m, r, 17);
+		
+			    break;
+			case 8:
+				b = _mm_alignr_epi8(m, r, 16);
+	
+			    break;
+			case 9:
+		
+			    break;
+			case 10:
+
+			    break;
+			case 11:
+
+			    break;
+			case 12:
+		
+			    break;
+			case 13:
+		
+			    break;
+			default:
+
+			    break;
+		}
+
+
+		if(b.m128i_u64[1] == 0) {// { .. , 0x00, 0x00, 0x00, 0x00 }
 			std::reverse(block_hashfp,block_hashfp +32);
 			std::cout << "\nBlock found!\nHash: " << bin2hex(block_hashfp, 32) <<"\nNonce: " << block_header.startNonce << "\nUnix time: "<< block_header.unixtime << std::endl;
 			break;
