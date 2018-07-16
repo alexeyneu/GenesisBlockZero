@@ -1,7 +1,7 @@
 
 
 run req:  
-   SSE3 hardware 
+   SSE3 hardware  
 linux - `libcrypto` (openssl package)  
 windows - `libcrypto-1_1-x64.dll`  ( ... )
 
