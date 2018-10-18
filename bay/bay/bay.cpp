@@ -10,6 +10,7 @@
 #include <sstream>
 #include <string>
 #include <vector>
+#include <iostream>
 
 #define MAX_LOADSTRING 100
 
@@ -136,13 +137,19 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 return 0;
 }
 std::shared_ptr<int> sp_tray;
-  std::weak_ptr<int> com_r;
+std::weak_ptr<int> com_r;
+std::mutex com_m;	
 UINT CALLBACK hammer(VOID *c)
 {
 	int reserve = 0;
+	AllocConsole();
+	freopen("CON", "w", stdout);
 	while (1)
 	{
-		com_r.expired() == 0 ? reserve = *com_r.lock(): reserve;
+	std::unique_lock<std::mutex> lb(com_m);
+	reserve = com_r.expired() == 0 ? *com_r.lock(): 5;
+	lb.unlock();
+	std::cout << reserve;	
 	}
 
 	return 0;
@@ -152,9 +159,11 @@ UINT CALLBACK hammersmith(VOID *c)
 {	
 	while (1)
 	{	
-		sp_tray = std::shared_ptr<int>(new int(0));
+		std::unique_lock<std::mutex> lb(com_m);
+		sp_tray = std::shared_ptr<int>(new int(7));
 		com_r = sp_tray;
-		sp_tray.reset();		
+		lb.unlock();	
+		sp_tray.reset();
 	}
 
 	return 0;
