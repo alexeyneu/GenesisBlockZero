@@ -91,7 +91,7 @@ int main(int argc, char *argv[])
 #ifdef _MSC_VER
 		_declspec(align(16))	unsigned char  block_hashfp[32];
 #else
-		_attribute_((aligned(16))) unsigned char  block_hashfp[32];
+		__attribute__((aligned(16))) unsigned char  block_hashfp[32];
 #endif
 		unsigned int counter=0, start = time(NULL);
 		int drift = 4;
