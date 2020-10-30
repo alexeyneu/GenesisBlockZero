@@ -5,7 +5,7 @@ there	dw 5
 		dw 7
 		dw 17
 basket  equ $ - there				
-		db 100h-basket dup(0) 
+		dw 128-basket/2 dup(0) 
 stackle ends 
 .data
 	put   db "boat", 0ah, 0dh,'$'
