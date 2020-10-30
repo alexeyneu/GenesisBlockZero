@@ -9,7 +9,6 @@ basket  equ $ - there
 stackle ends 
 .data
 	put   db "boat", 0ah, 0dh,'$'
-	outpost   db "out of",'$'
 .code
 	main   proc	
 	mov ax, @data
@@ -28,6 +27,7 @@ multiply:
 	mov bx, dx
 	cmp cx, 595
 	jne essa
+
 	mov al, 'B'
 	mov [bx], al
 essa:
