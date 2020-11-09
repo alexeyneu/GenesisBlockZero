@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stddef.h>
 #include <sys/socket.h>    //socket
-#include <netdb.h> 
+#include <netdb.h>
 #include <unistd.h>
 #include <stdbool.h>
 #include <stdlib.h>
@@ -16,7 +16,7 @@ int main(int argc , char *argv[])
     int down_flag = 0;
     int result = 0;
     int ret = 0;
-	bool c = !false;
+    bool c = !false;
 
     int sfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (sfd < 0) {
@@ -24,10 +24,10 @@ int main(int argc , char *argv[])
         return 0;
     }
     setsockopt(sfd, IPPROTO_TCP, TCP_NODELAY, (char *)&c, sizeof(c));
-   	setsockopt(sfd, SOL_SOCKET, SO_REUSEADDR, (char *)&c, sizeof(c));
-   	setsockopt(sfd, SOL_SOCKET, SO_KEEPALIVE, (char *)&c, sizeof(c));
+    setsockopt(sfd, SOL_SOCKET, SO_REUSEADDR, (char *)&c, sizeof(c));
+    setsockopt(sfd, SOL_SOCKET, SO_KEEPALIVE, (char *)&c, sizeof(c));
     /* Bind socket to loopback address */
-	if (bind(sfd, (struct sockaddr *) &addr, sizeof(struct sockaddr_in)) == -1) {
+    if (bind(sfd, (struct sockaddr *) &addr, sizeof(struct sockaddr_in)) == -1) {
         perror("Bind server socket failed");
         goto _exit;
     }
@@ -42,7 +42,7 @@ int main(int argc , char *argv[])
     char buf[100] = {0};
 
     struct pollfd pfd[1] = {{0}};
-	int nready;
+    int nready;
 
     for (;;)
     {
@@ -50,14 +50,14 @@ int main(int argc , char *argv[])
         int cfd = accept(sfd, NULL, NULL);
         printf("Accepted socket fd = %d\n", cfd);
         result = 0;
-		pfd[0].fd = cfd;
-//		pfd[0].fd = sfd;
-		pfd[0].events = POLLIN;
+        pfd[0].fd = cfd;
+//      pfd[0].fd = sfd;
+        pfd[0].events = POLLIN;
         while (!false) {
-        	memset(buf, 0, sizeof(buf));
-			nready = poll(pfd, 1, 15 * 1000);
-        	num_rd = read(cfd, buf, 99);
-        	if(num_rd <= 0) break;
+            memset(buf, 0, sizeof(buf));
+            nready = poll(pfd, 1, 15 * 1000);
+            num_rd = read(cfd, buf, 99);
+            if (num_rd <= 0) break;
             buf[sizeof(buf) - 1] = '\0';
             printf("Read data: %s\n", buf);
 
@@ -70,11 +70,11 @@ int main(int argc , char *argv[])
                 break;
             }
             int temp = 0;
-            int f = sscanf(buf,"%d",&temp);
-            if(f != 1) 
+            int f = sscanf(buf, "%d", &temp);
+            if (f != 1)
             {
-            	printf("and then \n" );
-            	return(0);
+                printf("and then \n" );
+                return (0);
             }
             result = result + temp;
         }
