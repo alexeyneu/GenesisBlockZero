@@ -17,6 +17,7 @@ int main(int argc , char *argv[])
     int result = 0;
     int ret = 0;
     bool c = !false;
+    int bc = 1024;    
 
     int sfd = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     if (sfd < 0) {
@@ -24,8 +25,11 @@ int main(int argc , char *argv[])
         return 0;
     }
     setsockopt(sfd, IPPROTO_TCP, TCP_NODELAY, (char *)&c, sizeof(c));
-    setsockopt(sfd, SOL_SOCKET, SO_REUSEADDR, (char *)&c, sizeof(c));
     setsockopt(sfd, SOL_SOCKET, SO_KEEPALIVE, (char *)&c, sizeof(c));
+    setsockopt(sfd, SOL_SOCKET, SO_REUSEADDR, (char *)&c, sizeof(c));
+    setsockopt(sfd, SOL_SOCKET, SO_REUSEPORT, (char *)&c, sizeof(c));
+    setsockopt(sfd, SOL_SOCKET, SO_SNDBUF, (int *)&bc, sizeof(bc));
+    setsockopt(sfd, SOL_SOCKET, SO_RCVBUF, (int *)&bc, sizeof(bc));
     /* Bind socket to loopback address */
     if (bind(sfd, (struct sockaddr *) &addr, sizeof(struct sockaddr_in)) == -1) {
         perror("Bind server socket failed");
