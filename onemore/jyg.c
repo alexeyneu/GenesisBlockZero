@@ -39,7 +39,8 @@ int main(int argc , char *argv[])
     }
 
     ssize_t num_rd = 0;
-    char buf[100] = {0};
+    enum { buf_size = 1025 };
+    char buf[buf_size] = {0};
 
     struct pollfd pfd[1] = {{0}};
     int nready;

@@ -16,12 +16,17 @@ int main(int argc , char *argv[])
     int result = 0;
     int ret = 0;
     bool c = !false;
-    char buf[100] = {0};
+    enum { buf_size = 1025 };
+    char buf[buf_size] = {0};
+    int bc = 1024;    
 
     int data_socket = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
     setsockopt(data_socket, SOL_SOCKET, SO_KEEPALIVE, (char *)&c, sizeof(c));
     setsockopt(data_socket, IPPROTO_TCP, TCP_NODELAY, (char *)&c, sizeof(c));
     setsockopt(data_socket, SOL_SOCKET, SO_REUSEADDR, (char *)&c, sizeof(c));
+    setsockopt(data_socket, SOL_SOCKET, SO_REUSEPORT, (char *)&c, sizeof(c));
+    setsockopt(data_socket, SOL_SOCKET, SO_SNDBUF, (int *)&bc, sizeof(bc));
+    setsockopt(data_socket, SOL_SOCKET, SO_RCVBUF, (int *)&bc, sizeof(bc));
     ret = connect(data_socket, (const struct sockaddr *) &addr, sizeof(addr));
     if (-1 == ret) {
         perror("Connect error");
