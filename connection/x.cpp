@@ -37,6 +37,12 @@ int main(int argc , char *argv[])
 		send(q, f.str().c_str(), f.str().length(), 0);
 		int cnt = recv(q, b, 1500, 0);
 		close(q);
-		std::cout << b  << std::endl << "length :" << cnt << std::endl << std::endl;
+		std::stringstream f2(b);
+		int lheaderend = f2.str().find("\r\n\r\n");
+		int lb = f2.str().find("\"final_balance\": ", lheaderend);
+		f2.seekg(lb + std::string("\"final_balance\": ").length());
+		int cash = 0;
+		f2 >> cash;
+		std::cout << b << std::endl << "length :" << cnt << std::endl << "cash in : " << cash << std::endl << std::endl;
 	}
 }
