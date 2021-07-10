@@ -31,8 +31,8 @@ CREATE TABLE public.russian_size (
     burning_address_btc character varying(74) NOT NULL,
     reff_eth_address character varying(42),
     showed_up_on timestamp without time zone NOT NULL,
-    f_balance_btc bigint,
-    f_balance_eth bigint
+    f_balance_btc numeric(72,0),
+    f_balance_eth numeric(72,0)
 );
 
 
@@ -72,8 +72,8 @@ ALTER TABLE ONLY public.russian_size ALTER COLUMN id SET DEFAULT nextval('public
 --
 
 COPY public.russian_size (id, eth_address, burning_address_eth, burning_address_btc, reff_eth_address, showed_up_on, f_balance_btc, f_balance_eth) FROM stdin;
-1	0xF9cBf7b08f09ED3d4516E8b7A3FCbe4Dc7B3Cd40	0x01b4091244791Ca6b6e82ACC9894d4Af3B93F0eE	tb1qyuq8v6n9cegxy020frqcg7dl4plte0g9awa7l9	\N	2014-03-03 02:03:04	5137004	0
-2	0x570215116714E113592ac8ef87C6ABfd176d705e	0xe1CcF78C6E26c45c4e4A5584C19a2e5b2009536E	tb1qcqqpm3y7fzjcmlgu3faun5d543k5yy6jm0lpx3	\N	2014-03-03 02:03:04	7000	0
+1	0x570215116714E113592ac8ef87C6ABfd176d705e	0xe1CcF78C6E26c45c4e4A5584C19a2e5b2009536E	tb1qcqqpm3y7fzjcmlgu3faun5d543k5yy6jm0lpx3	\N	2014-03-03 02:03:04	7000	0
+2	0xF9cBf7b08f09ED3d4516E8b7A3FCbe4Dc7B3Cd40	0x01b4091244791Ca6b6e82ACC9894d4Af3B93F0eE	tb1qyuq8v6n9cegxy020frqcg7dl4plte0g9awa7l9	\N	2014-03-03 02:03:04	5137004	0
 \.
 
 
