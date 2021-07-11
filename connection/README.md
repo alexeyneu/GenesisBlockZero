@@ -1,4 +1,4 @@
 arch linux domain socket used.  
 check with `netstat -nlp | grep 5432` 
-   
-![Screen1]('/connection/Screenshot from 2021-07-11 13-57-26.jpeg')
+
+![Screen1](/connection/Screenshot.jpeg)
