@@ -59,6 +59,7 @@ int main(int argc , char *argv[])
             std::string f3(f2, lengthb, f2.find(',', lb) - lengthb);
             BN_CTX *bz = BN_CTX_new();
             BIGNUM* cash = BN_new();
+            BIGNUM* cashf = BN_new();
             BIGNUM* balance_btc_ex = BN_new();
             BN_dec2bn(&cash, f3.c_str());
             BN_dec2bn(&balance_btc_ex, row[6].c_str());
@@ -67,7 +68,9 @@ int main(int argc , char *argv[])
             {
                 W.exec0("UPDATE russian_size SET f_balance_btc = " + pqxx::to_string(f3.c_str()) + " WHERE id = " + row[0].c_str());
             }
-            std::cout << b << std::endl << "length :" << cnt << std::endl << "cash in : " << cash << std::endl;
+            BN_sub(cashf, cash, balance_btc_ex);
+            char *c1 =  BN_bn2dec(cashf);
+            std::cout << b << std::endl << "length :" << cnt << std::endl << "cash in : " << c1 << std::endl;
 
 
             f.str("");
@@ -88,6 +91,7 @@ int main(int argc , char *argv[])
             std::string f3x(f2, lengthb, f2.find(',', lb) - lengthb);
 
             BN_zero(cash);
+            BN_zero(cashf);            
             BIGNUM* balance_eth_ex = BN_new();
             BN_dec2bn(&cash, f3x.c_str());
             BN_dec2bn(&balance_eth_ex, row[7].c_str());
@@ -96,11 +100,17 @@ int main(int argc , char *argv[])
             {
                 W.exec0("UPDATE russian_size SET f_balance_eth = " + pqxx::to_string(f3x.c_str()) + " WHERE id = " + row[0].c_str());
             }
-            std::cout << bx << std::endl << "length :" << cnt << std::endl << "cash in : " << cash << std::endl  <<  f3x  << std::endl;
+            BN_sub(cashf, cash, balance_eth_ex);
+            char *c2 =  BN_bn2dec(cashf);
+ 
+            std::cout << bx << std::endl << "length :" << cnt << std::endl << "cash in : " << c2 << std::endl  <<  f3x  << std::endl;
             BN_CTX_free(bz);
             BN_free(cash);
+            BN_free(cashf);
             BN_free(balance_btc_ex);
             BN_free(balance_eth_ex);
+            OPENSSL_free(c1);
+            OPENSSL_free(c2);
         }
         W.commit();
         std::unique_lock<std::mutex> lk(com_mp);
